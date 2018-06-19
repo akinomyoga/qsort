@@ -52,7 +52,7 @@ $(BUILD_DIRECTORY)/mm88c.o:    mm88c.c | $(BUILD_DIRECTORY)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 #------------------------------------------------------------------------------
-# glibc qsort を組み込む場合
+# GPL qsorts を組み込む場合
 
 measure_OBJS += \
   $(BUILD_DIRECTORY)/glibc-msort.o \
@@ -60,6 +60,11 @@ measure_OBJS += \
 $(BUILD_DIRECTORY)/glibc-qsort.o: lib/glibc-qsort.c | $(BUILD_DIRECTORY)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 $(BUILD_DIRECTORY)/glibc-msort.o: lib/glibc-msort.c | $(BUILD_DIRECTORY)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+measure_OBJS += \
+  $(BUILD_DIRECTORY)/newlib-qsort.o
+$(BUILD_DIRECTORY)/newlib-qsort.o: lib/newlib-qsort.c | $(BUILD_DIRECTORY)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 #------------------------------------------------------------------------------

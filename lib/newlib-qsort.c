@@ -62,9 +62,11 @@ PORTABILITY
  * SUCH DAMAGE.
  */
 
-#include <_ansi.h>
+//#include <_ansi.h>
 #include <sys/cdefs.h>
 #include <stdlib.h>
+#include "newlib-qsort.h"
+#include "newlib-defs.h"
 
 #ifndef __GNUC__
 #define inline
@@ -178,7 +180,7 @@ qsort_r (void *a,
 #else
 #define thunk NULL
 void
-qsort (void *a,
+qsort_newlib (void *a,
 	size_t n,
 	size_t es,
 	cmp_t *cmp)

@@ -23,6 +23,7 @@ extern "C" {
 #include "qs9e17.h"
 #include "qs10a5.h"
 #include "lib/glibc-qsort.h"
+#include "lib/newlib-qsort.h"
 
 constexpr char32_t seed[] = U"glibc newlib より速いクイックソート(qs9 qs10)、 世界最速をめざしてqsortの新しいアルゴリズム qs9 を開発しましたその結果、ソート対象によっては間接ソートを取り入れた方が高速なことが判りました。今回、間接ソートを取り入れた qs10 を開発しました。お願い現在、 標準qsort　qs9　qs10　を比較するベンチマークテストを行っております。";
 std::mt19937 create_random_engine()
@@ -69,6 +70,7 @@ enum class qsort_type {
   qs10a5,
   qs10a5m,
   glibc,
+  newlib,
 };
 
 qsort_type parse_qsort_type(const char* text) {
@@ -82,6 +84,8 @@ qsort_type parse_qsort_type(const char* text) {
     return qsort_type::qs10a5m;
   } else if (strcmp(text, "glibc") == 0) {
     return qsort_type::glibc;
+  } else if (strcmp(text, "newlib") == 0) {
+    return qsort_type::newlib;
   } else {
     return qsort_type::invalid;
   }
@@ -179,7 +183,7 @@ int main(int argc, char **argv) {
 
     qsortType = parse_qsort_type(argv[iarg++]);
     if (qsortType == qsort_type::invalid)
-      die("Usage: qsort_type = qsort | qs9e17 | qs10a5 | qs10a5m | glibc");
+      die("Usage: qsort_type = qsort | qs9e17 | qs10a5 | qs10a5m | glibc | newlib");
 
     div_val   = atoi(argv[iarg++]);  /*テストデータの種類を指定する random()%div_val等*/
     arr_max   = atoi(argv[iarg++]);  /*要素の個数(要素数)*/
@@ -238,6 +242,11 @@ int main(int argc, char **argv) {
     measure_qsort(
       [](void* arr, size_t n, size_t sz, cmpfnc_t cmpfnc) {
         qsort_glibc(arr, n, sz, cmpfnc); });
+    break;
+  case qsort_type::newlib:
+    measure_qsort(
+      [](void* arr, size_t n, size_t sz, cmpfnc_t cmpfnc) {
+        qsort_newlib(arr, n, sz, cmpfnc); });
     break;
   default:
     throw std::logic_error("bug");
