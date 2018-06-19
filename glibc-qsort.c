@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "glibc-defs.h"
+
 /* Byte-wise swap two items of size SIZE. */
 #define SWAP(a, b, size)						      \
   do									      \
@@ -86,7 +88,7 @@ typedef struct
       stack size is needed (actually O(1) in this case)!  */
 
 void
-_quicksort (void *const pbase, size_t total_elems, size_t size,
+glibc_quicksort (void *const pbase, size_t total_elems, size_t size,
 	    __compar_d_fn_t cmp, void *arg)
 {
   char *base_ptr = (char *) pbase;

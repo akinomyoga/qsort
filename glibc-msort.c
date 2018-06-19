@@ -23,7 +23,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include <atomic.h>
+
+/* #include <atomic.h> */
+/* #include <memcopy.h> */
+#include "glibc-defs.h"
 
 struct msort_param
 {
@@ -159,8 +162,7 @@ msort_with_tmp (const struct msort_param *p, void *b, size_t n)
   memcpy (b, p->t, (n - n2) * s);
 }
 
-
-void
+static void
 __qsort_r (void *b, size_t n, size_t s, __compar_d_fn_t cmp, void *arg)
 {
   size_t size = n * s;
@@ -212,7 +214,7 @@ __qsort_r (void *b, size_t n, size_t s, __compar_d_fn_t cmp, void *arg)
       /* If the memory requirements are too high don't allocate memory.  */
       if (size / pagesize > (size_t) phys_pages)
 	{
-	  _quicksort (b, n, s, cmp, arg);
+	  glibc_quicksort (b, n, s, cmp, arg);
 	  return;
 	}
 
@@ -224,7 +226,7 @@ __qsort_r (void *b, size_t n, size_t s, __compar_d_fn_t cmp, void *arg)
 	{
 	  /* Couldn't get space, so use the slower algorithm
 	     that doesn't need a temporary array.  */
-	  _quicksort (b, n, s, cmp, arg);
+	  glibc_quicksort (b, n, s, cmp, arg);
 	  return;
 	}
       p.t = tmp;
@@ -302,7 +304,7 @@ weak_alias (__qsort_r, qsort_r)
 
 
 void
-qsort (void *b, size_t n, size_t s, __compar_fn_t cmp)
+qsort_glibc (void *b, size_t n, size_t s, __compar_fn_t cmp)
 {
   return __qsort_r (b, n, s, (__compar_d_fn_t) cmp, NULL);
 }
