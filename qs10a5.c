@@ -30,7 +30,9 @@ static void die(const char *s) {fprintf(stderr, "++++ %s ++++\n", s); printf("++
 static void die(const char *s) { (void)s; }
 #endif
 
+#ifndef QSORT_MEASURE_DISABLE_MID
 size_t g_QS_MID1=140, g_QS_MID2=900, g_QS_MID3=400;  // 関数の外で設定することも可 g_QS_MID3=500も可
+#endif
 
 static int (*cmp_org)( const void *a, const void *b );
 static int cmp_indirect( const void *a, const void *b ) {return (*cmp_org)( *(const void**)a, *(const void**)b );}
