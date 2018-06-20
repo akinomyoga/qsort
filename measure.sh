@@ -7,6 +7,7 @@ compare_qsorts () {
   "$measure" qs10a5m "$@" 140 900 400 0
   "$measure" glibc   "$@"   0   0   0 0
   "$measure" newlib  "$@"   0   0   0 0
+  "$measure" stdsort "$@"   0   0   0 0
 }
 
 for measure in build/L*/measure.exe; do
