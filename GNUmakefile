@@ -16,6 +16,13 @@ else ifeq ($(optimization_type),L3N)
   optimization_flags := -O3 -march=native
 endif
 
+use_random := mt19937
+ifeq ($(use_random),mt19937)
+  def_random := -DRANDOM_TYPE=1
+else
+  def_random := -DRANDOM_TYPE=0
+endif
+
 BUILD_DIRECTORY   := build/$(optimization_type)
 INSTALL_DIRECTORY := bin
 DIRS += \
@@ -35,7 +42,7 @@ CXXFLAGS := -std=c++14 $(optimization_flags)
 measure_OBJS += \
   $(BUILD_DIRECTORY)/measure.o
 $(BUILD_DIRECTORY)/measure.o: measure.cpp | $(BUILD_DIRECTORY)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(def_random) -c -o $@ $<
 
 measure_OBJS += \
   $(BUILD_DIRECTORY)/qs9e17.o \

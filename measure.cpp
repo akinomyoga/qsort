@@ -16,6 +16,10 @@
 #include <iomanip>
 #include <string>
 
+#ifndef RANDOM_TYPE
+# define RANDOM_TYPE 1
+#endif
+
 extern "C" {
   size_t g_QS_MID1=140, g_QS_MID2=900, g_QS_MID3=400;
 }
@@ -102,22 +106,50 @@ auto& DATA(int i)
 
 template<typename F>
 void do_qsort(int do_qs, F qsort_selected) {
+#if RANDOM_TYPE == 1
 	std::mt19937 engine = create_random_engine();
+#else
+  srandom(div_val + arr_max + 556);
+#endif
 	for (counter = 0; counter<itarate; counter++) {
 		/*データを用意する*/
-		if (div_val == 0) for (int i = 0; i < arr_max; i++) KEY(i) = 5;         /*一定*/
-		if (div_val == -1) for (int i = 0; i < arr_max; i++) KEY(i) = i + 1;       /*昇順*/
-		if (div_val == -2) for (int i = 0; i < arr_max; i++) KEY(i) = arr_max - i; /*降順*/
-		if (div_val == 1) for (int i = 0; i < arr_max; i++) KEY(i) = std::uniform_int_distribution<>(0, 2147483647)(engine);  /*乱数*/
-		if (div_val >= 2) for (int i = 0; i < arr_max; i++) KEY(i) = std::uniform_int_distribution<>(0, div_val - 1)(engine);
-		if (div_val == -3) {
+
+		if (div_val ==   0) for (int i = 0; i < arr_max; i++) KEY(i) = 5;           /*一定*/
+		if (div_val ==  -1) for (int i = 0; i < arr_max; i++) KEY(i) = i + 1;       /*昇順*/
+		if (div_val ==  -2) for (int i = 0; i < arr_max; i++) KEY(i) = arr_max - i; /*降順*/
+
+		if (div_val ==   1)
+      for (int i = 0; i < arr_max; i++) {
+#if RANDOM_TYPE == 1
+        KEY(i) = std::uniform_int_distribution<>(0, 2147483647)(engine);  /*乱数*/
+#else
+        KEY(i) = random();  /*乱数*/
+#endif
+      }
+
+    if (div_val >= 2)
+      for (int i = 0; i < arr_max; i++) {
+#if RANDOM_TYPE == 1
+        // yumetodo
+        KEY(i) = std::uniform_int_distribution<>(0, div_val - 1)(engine);
+#else
+        // default
+        KEY(i) = random() % div_val;
+#endif
+      }
+
+    if (div_val ==  -3) {
 			for (int i = 0; i < arr_max; i++) KEY(i) = i;       /*同値キーがない乱数　入れ替えで*/
 
 			for (int i = 0; i < arr_max; i++) {
+#if RANDOM_TYPE == 1
 				const int x = std::uniform_int_distribution<>(0, arr_max - 1)(engine);
+#else
+        const int x = random() % arr_max;
+#endif
 				std::swap(KEY(i), KEY(x));
 			}
-		}
+    }
 
 		if (rec_siz >= 8)
 			for (int i = 0; i < arr_max; i++) DATA(i) = i;   /*検査のための準備*/
