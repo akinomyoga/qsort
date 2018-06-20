@@ -201,7 +201,7 @@ void measure_qsort(F qsort_selected) {
     double sum_av = (double)cmp_av + ass_av;
     double etime = (double)((clk_end - clk_start) - (clk_end2 - clk_end)) / CLOCKS_PER_SEC;
     fprintf(stderr, "   %4.0f ", etime / itarate * 100000);
-    printf(" c=%-6u %10u a=%-6u %10u i=%1.0f T=%1.2f %4.0f \n", cmp_av, cmp_cnt, ass_av, ass_cnt, sum_av, etime, etime / itarate * 100000);
+    printf(" c=%-6u %10u a=%-6u %u i=%1.0f T=%1.2f %4.0f \n", cmp_av, cmp_cnt, ass_av, ass_cnt, sum_av, etime, etime / itarate * 100000);
   }
 }
 
