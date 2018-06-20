@@ -27,7 +27,7 @@
 #include "qs10a5m.h"
 #include "lib/glibc-qsort.h"
 #include "lib/newlib-qsort.h"
-#include "lib/std-sort.hpp"
+#include "lib/stdsort-qsort.hpp"
 
 constexpr char32_t seed[] = U"glibc newlib より速いクイックソート(qs9 qs10)、 世界最速をめざしてqsortの新しいアルゴリズム qs9 を開発しましたその結果、ソート対象によっては間接ソートを取り入れた方が高速なことが判りました。今回、間接ソートを取り入れた qs10 を開発しました。お願い現在、 標準qsort　qs9　qs10　を比較するベンチマークテストを行っております。";
 std::mt19937 create_random_engine()
