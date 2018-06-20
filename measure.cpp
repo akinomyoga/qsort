@@ -104,6 +104,8 @@ template<typename F>
 void do_qsort(int do_qs, F qsort_selected) {
 #if RANDOM_TYPE == 1
   std::mt19937 engine = create_random_engine();
+#elif RANDOM_TYPE == 2
+  srand(div_val + arr_max + 556);
 #else
   srandom(div_val + arr_max + 556);
 #endif
@@ -117,7 +119,9 @@ void do_qsort(int do_qs, F qsort_selected) {
     if (div_val ==   1)
       for (int i = 0; i < arr_max; i++) {
 #if RANDOM_TYPE == 1
-        KEY(i) = std::uniform_int_distribution<>(0, 2147483647)(engine);  /*乱数*/
+        KEY(i) = std::uniform_int_distribution<>(0, 2147483647)(engine);
+#elif RANDOM_TYPE == 2
+        KEY(i) = rand();
 #else
         KEY(i) = random();  /*乱数*/
 #endif
@@ -126,10 +130,10 @@ void do_qsort(int do_qs, F qsort_selected) {
     if (div_val >= 2)
       for (int i = 0; i < arr_max; i++) {
 #if RANDOM_TYPE == 1
-        // yumetodo
         KEY(i) = std::uniform_int_distribution<>(0, div_val - 1)(engine);
+#elif RANDOM_TYPE == 2
+        KEY(i) = rand() % div_val;
 #else
-        // default
         KEY(i) = random() % div_val;
 #endif
       }
@@ -140,6 +144,8 @@ void do_qsort(int do_qs, F qsort_selected) {
       for (int i = 0; i < arr_max; i++) {
 #if RANDOM_TYPE == 1
         const int x = std::uniform_int_distribution<>(0, arr_max - 1)(engine);
+#elif RANDOM_TYPE == 2
+        const int x = rand() % arr_max;
 #else
         const int x = random() % arr_max;
 #endif
@@ -152,7 +158,7 @@ void do_qsort(int do_qs, F qsort_selected) {
 
     if (do_qs) qsort_selected((char*)vec, arr_max, rec_siz, cmpfnc);   /*ソートの実行*/
 
-                                  /*以下でソートできたことを検査する*/
+    /*以下でソートできたことを検査する*/
     for (int i = 1; i < arr_max; i++) {
       if (div_val >= 0 ? KEY(i - 1) > KEY(i) : KEY(i - 1) >= KEY(i)) {
         if (do_qs == 0) continue;

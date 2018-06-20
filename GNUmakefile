@@ -18,9 +18,11 @@ endif
 
 use_random := mt19937
 ifeq ($(use_random),mt19937)
-  def_random := -DRANDOM_TYPE=1
+  use_random_flags := -DRANDOM_TYPE=1
+else ifeq ($(use_random),rand)
+  use_random_flags := -DRANDOM_TYPE=2
 else
-  def_random := -DRANDOM_TYPE=0
+  use_random_flags := -DRANDOM_TYPE=0
 endif
 
 BUILD_DIRECTORY   := build/$(optimization_type)
@@ -29,7 +31,7 @@ DIRS += \
   $(BUILD_DIRECTORY) \
   $(INSTALL_DIRECTORY)
 
-CPPFLAGS = -MD -MP -MF $(@:.o=.dep) -DQSORT_MEASURE_DISABLE_MID
+CPPFLAGS = -MD -MP -MF $(@:.o=.dep)
 -include $(wildcard $(BUILD_DIRECTORY)/*.dep)
 
 CC       := gcc
@@ -67,11 +69,11 @@ measure_OBJS += \
 .SECONDARY:
 
 $(BUILD_DIRECTORY)/%.o: %.cpp | $(BUILD_DIRECTORY)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(def_random) -c -o $@ $<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(use_random_flags) -c -o $@ $<
 $(BUILD_DIRECTORY)/%.o: %.c | $(BUILD_DIRECTORY)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(def_random) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(use_random_flags) -c -o $@ $<
 $(BUILD_DIRECTORY)/%.o: lib/%.c | $(BUILD_DIRECTORY)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(def_random) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(use_random_flags) -c -o $@ $<
 
 $(BUILD_DIRECTORY)/measure.exe: $(measure_OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
@@ -81,7 +83,6 @@ all: $(BUILD_DIRECTORY)/measure.exe
 
 install:
 .PHONY: install
-
 install: $(INSTALL_DIRECTORY)/measure.exe
 $(INSTALL_DIRECTORY)/measure.exe: $(BUILD_DIRECTORY)/measure.exe
 	cp $< $@
