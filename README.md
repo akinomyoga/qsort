@@ -48,6 +48,16 @@ $ cd ../bin
 $ ./qsort_benchmark.exe
 ```
 
+## 最適化比較の計測方法
+
+### GNU/Linux, Cygwin, MSYS2
+
+```console
+$ git clone git@github.com:akinomyoga/t-kawa-qsort.git
+$ cd t-kawa-qsort
+$ make measure
+```
+
 ## 原作者情報
 
 河村　知行  
