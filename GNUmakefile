@@ -39,42 +39,46 @@ CXXFLAGS := -std=c++14 $(optimization_flags)
 
 #------------------------------------------------------------------------------
 
-measure_OBJS += \
+measure_CXX_OBJS += \
   $(BUILD_DIRECTORY)/measure.o
 $(BUILD_DIRECTORY)/measure.o: measure.cpp | $(BUILD_DIRECTORY)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(def_random) -c -o $@ $<
 
-measure_OBJS += \
+measure_C_OBJS += \
+  $(BUILD_DIRECTORY)/mm88c.o \
+  $(BUILD_DIRECTORY)/die.o \
+  $(BUILD_DIRECTORY)/global_variable.o
+$(BUILD_DIRECTORY)/mm88c.o:           mm88c.c 		  | $(BUILD_DIRECTORY)
+$(BUILD_DIRECTORY)/die.o:             die.c 		  | $(BUILD_DIRECTORY)
+$(BUILD_DIRECTORY)/global_variable.o: global_variable.c   | $(BUILD_DIRECTORY)
+
+measure_C_OBJS += \
   $(BUILD_DIRECTORY)/qs9e17.o \
   $(BUILD_DIRECTORY)/qs10a5.o \
-  $(BUILD_DIRECTORY)/qs10a5m.o \
-  $(BUILD_DIRECTORY)/mm88c.o
-$(BUILD_DIRECTORY)/qs9e17.o:  qs9e17.c | $(BUILD_DIRECTORY)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
-$(BUILD_DIRECTORY)/qs10a5.o:  qs10a5.c | $(BUILD_DIRECTORY)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
-$(BUILD_DIRECTORY)/qs10a5m.o: qs10a5.c | $(BUILD_DIRECTORY)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -DMEMCPY -Dqsort10a5=qsort10a5m -c -o $@ $<
-$(BUILD_DIRECTORY)/mm88c.o:    mm88c.c | $(BUILD_DIRECTORY)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+  $(BUILD_DIRECTORY)/qs10a5m.o
+$(BUILD_DIRECTORY)/qs9e17.o:  qs9e17.c  | $(BUILD_DIRECTORY)
+$(BUILD_DIRECTORY)/qs10a5.o:  qs10a5.c  | $(BUILD_DIRECTORY)
+$(BUILD_DIRECTORY)/qs10a5m.o: qs10a5m.c | $(BUILD_DIRECTORY)
 
 #------------------------------------------------------------------------------
 # GPL qsorts を組み込む場合
 
-measure_OBJS += \
+measure_C_OBJS += \
   $(BUILD_DIRECTORY)/glibc-msort.o \
   $(BUILD_DIRECTORY)/glibc-qsort.o
 $(BUILD_DIRECTORY)/glibc-qsort.o: lib/glibc-qsort.c | $(BUILD_DIRECTORY)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 $(BUILD_DIRECTORY)/glibc-msort.o: lib/glibc-msort.c | $(BUILD_DIRECTORY)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
-measure_OBJS += \
+measure_C_OBJS += \
   $(BUILD_DIRECTORY)/newlib-qsort.o
 $(BUILD_DIRECTORY)/newlib-qsort.o: lib/newlib-qsort.c | $(BUILD_DIRECTORY)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 #------------------------------------------------------------------------------
+
+measure_OBJS := $(measure_C_OBJS) $(measure_CXX_OBJS)
+$(measure_C_OBJS):
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(def_random) -c -o $@ $<
+$(measure_CXX_OBJS):
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(def_random) -c -o $@ $<
 
 $(BUILD_DIRECTORY)/measure.exe: $(measure_OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)

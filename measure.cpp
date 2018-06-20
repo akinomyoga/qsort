@@ -20,12 +20,11 @@
 # define RANDOM_TYPE 1
 #endif
 
-extern "C" {
-  size_t g_QS_MID1=140, g_QS_MID2=900, g_QS_MID3=400;
-}
-
+#include "die.h"
+#include "global_variable.h"
 #include "qs9e17.h"
 #include "qs10a5.h"
+#include "qs10a5m.h"
 #include "lib/glibc-qsort.h"
 #include "lib/newlib-qsort.h"
 
@@ -34,13 +33,6 @@ std::mt19937 create_random_engine()
 {
   std::seed_seq seq(std::begin(seed), std::end(seed));
   return std::mt19937(seq);
-}
-
-[[noreturn]] void die(const char *s)
-{
-  fprintf(stderr, "***** %s *****\n", s);
-  printf("***** %s *****\n", s);
-  exit(1);
 }
 
 typedef struct { int key; int data; } el_t;

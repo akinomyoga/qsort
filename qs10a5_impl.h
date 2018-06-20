@@ -1,21 +1,33 @@
 ﻿/*=============================================================================
-  Copyright (C) 2018 河村　知行 <t-kawa@crux.ocn.ne.jp>
+  Copyright (C) 2017-2018 河村　知行 <t-kawa@crux.ocn.ne.jp>
   Copyright (C) 2018 yumetodo <yume-wikijp@live.jp>
   Distributed under the Boost Software License, Version 1.0.
   (See https://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 /**
- * @file qs9e17.c
+ * @file qs10a5.c
  * @brief Quick sort function
- * @date 2018.2.22
+ * @date 2018.6.1
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include "qs10a5.h"
 #include "mm88.h"
 #include "die.h"
 #include "global_variable.h"
+#ifdef USE_MEMCPY
+#define MMPRE()
+#include <string.h>
+#else
+#define MMPRE()               mmprepare( base, size );
+#define memcpy(dst, src, siz) mmmove(dst, src)
+#endif
+#include <malloc.h>
 
 //typedef long unsigned int size_t;
+
+static int (*cmp_org)( const void *a, const void *b );
+static int cmp_indirect( const void *a, const void *b ) {return (*cmp_org)( *(const void**)a, *(const void**)b );}
 
 typedef struct { char *LLss, *RRss; } stack_node;   /*L,Rを積むスタックの構造体*/
 #define PUSH(llss,rrss) {top->LLss = (llss); top->RRss = (rrss); ++top;}    /*L,Rを積む*/
@@ -24,10 +36,10 @@ typedef struct { char *LLss, *RRss; } stack_node;   /*L,Rを積むスタック�
 #define med3(a,b,c) ((t=(*cmp)(a,b))<=0 ? ((*cmp)(b,c)<=0 ? b : (t==0 ? b : ((*cmp)(a,c)<=0 ? c : a))) : \
                                           ((*cmp)(b,c)>=0 ? b :             ((*cmp)(a,c)<=0 ? a : c) ))
 
-#define  LT(a,b)  if ((t=(*cmp)(a,b)) <  0) 
-#define  LE(a,b)  if ((t=(*cmp)(a,b)) <= 0) 
-#define  GT(a,b)  if ((t=(*cmp)(a,b)) >  0) 
-#define  GE(a,b)  if ((t=(*cmp)(a,b)) >= 0) 
+#define  LT(a,b)  if ((t=(*cmp)(a,b)) <  0)
+#define  LE(a,b)  if ((t=(*cmp)(a,b)) <= 0)
+#define  GT(a,b)  if ((t=(*cmp)(a,b)) >  0)
+#define  GE(a,b)  if ((t=(*cmp)(a,b)) >= 0)
 #define  else_GT  else if (t > 0)
 #define  else_LT  else if (t < 0)
 
@@ -36,7 +48,12 @@ typedef struct { char *LLss, *RRss; } stack_node;   /*L,Rを積むスタック�
 #define I(x)     {x+=size;}
 #define D(x)     {x-=size;}
 
-void qsort9e17(void * base, size_t nel, size_t size, int(*cmp)(const void *a, const void *b))
+#ifndef USE_MEMCPY
+void    qsort10a5
+#else
+void    qsort10a5m
+#endif
+( void *base, size_t nel, size_t size,  int (*cmp)(const void *a, const void *b) )
 {
  char *L = (char*)base;                  /*分割中の区間の左端の要素の先頭*/
  char *R = &((char*)base)[size*(nel-1)]; /*分割中の区間の右端の要素の先頭*/
@@ -46,15 +63,17 @@ void qsort9e17(void * base, size_t nel, size_t size, int(*cmp)(const void *a, co
  size_t  n;                                 /*分割中の区間の要素数*/
  stack_node stack[32], *top = stack;     /*３２ビットマシンでは３２で十分*/
 
+ if (size >= g_QS_MID3) goto indirect_sort; malloc_err: /*間接ソートに失敗したら戻る*/
+
  mmprepare( base, size );
 
 LOOP:
  if (L>=R) {goto nxt;}
 loop:
  if (L + size == R) {if ((*cmp)(L,R) > 0) S(L,R) goto nxt;} /*要素数２*/
- 
+
  n = (R - L + size) / size;  /*要素数*/
- 
+
  if (n <= 4) {
    m = R - size;
    LT(L,m)  GT(m,R)  LE(L,R)  S(m,R)    /*3-5-3,4*/
@@ -113,7 +132,7 @@ loop:
 
 
 
- {char *p,*z1,*z2,*z3; size_t w2;            //２７点処理 
+ {char *p,*z1,*z2,*z3; size_t w2;            //２７点処理
  p=m-(w2=size*3)*4;  f=p+size; g=f+size; z1=med3(p, f, g);
            p+=w2;    f+=w2;     g+=w2;     z2=med3(p, f, g);
            p+=w2;    f+=w2;     g+=w2;     z3=med3(p, f, g); l=med3(z1, z2, z3);
@@ -132,19 +151,19 @@ loop:
 
 /*
 333...555...777　　lfgr のlの位置から比較を始める。357を貯める。 l[fg]r系　 この系は l<=f g<=r を保証
-L  l f m g r  R 
+L  l f m g r  R
 mは分割要素を指す。mもその要素も1回の分割終了の直前まで、変更なし。
-「5」分割要素と同キーの要素を表す。「3」5より小さいキーの要素を表す。「7」5より大きいキーの要素を表す。 
+「5」分割要素と同キーの要素を表す。「3」5より小さいキーの要素を表す。「7」5より大きいキーの要素を表す。
 「l」333の右隣の要素を指す 「r」777の左隣の要素を指す 「L」先頭要素を指す 「R」最終要素を指す
 「f」555の左隣の要素を指す 「g」555の右隣の要素を指す
 「.」未比較の要素の列(長さ0以上)を表す  「_」未比較の要素1つを表す
 
 333355555...777 になったら 333355555...777 にする。333355555333...777 として第2の3を貯める。
-   fl    g r                  f     l r               f     g  l r   
+   fl    g r                  f     l r               f     g  l r
    f<l になったら                   l=g; する。             gとlの間に3を貯める。 [fg]lr系  r<lもあり
 
 333...555557777 になったら 333...555557777 にする。333...777555557777 として第2の7を貯める。
-   l f    rg  R               l r     g  R            l r  f     g   
+   l f    rg  R               l r     g  R            l r  f     g
           r<g になったら        r=f; する。             rとfの間に7を貯める。     lr[fg]系  r<lもあり
 */
 
@@ -153,7 +172,7 @@ chk:                                          // L l f  g r R
            else      {r=f;      goto _lrfg;}  // 33..5577
  else      if (g<=r) {l=g;      goto _fglr;}  // 3355..77
            else      {D(l) I(r) goto fin;  }  // 333555777
-            
+
 chk_lf:
  if (l>f)  {l=g; goto _fglr;}    // 3355..77
                                                     //L l f  g r R
@@ -189,7 +208,7 @@ _5fgr_g:
                  else LT(r,m) {/*_5f73:*/ K(l,r,g) I(l) I(g) D(r) goto chk;    }  //335.557377
                       else_GT {/*_5f77:*/ D(r)                    goto _5f7r;  }
                       else    {/*_5f75:*/ S(g,r) I(g) D(r)        goto _5fgr_ ;}}
- else    {/*_5f5r:*/ I(g)  _5fgr_: if (g<=r) {    /*goto _5fgr;*/ goto _5fgr_g;} 
+ else    {/*_5f5r:*/ I(g)  _5fgr_: if (g<=r) {    /*goto _5fgr;*/ goto _5fgr_g;}
                                else      {r=f;                goto _5rfg;  }}
 //die("_5fgr_g");
 
@@ -250,7 +269,7 @@ _lrfg: //mの要素が移動することはない
 
 fin_rlfg:
  if (r+size != l && r+size*2 != l) die("fin_rlfg");
- I(f); 
+ I(f);
  if (f < l) exit(7);
  if ((v=f-l)<=0) {l=r; r=g; goto fin;}
  if (g < f) exit(8);
@@ -278,7 +297,7 @@ _fglr:
 
 fin_fgrl:                                              //333355533333777   3333555333335777
  if (r+size != l && r+size*2 != l) die("fin_fgrl");    //   f   g   rl        f   g   r l
- I(f); 
+ I(f);
  if ((v=r-g+size)<=0) {r=l; l=f-size; goto fin;}
  if (g < f) exit(9);
  if ((w=g-f)==size) S(f,r)
@@ -298,4 +317,45 @@ nxt:
  if (stack == top) {return;}    /*スタックが空になったとき終了する*/
  POP(L,R);                      /*スタックに積んである値を取り出す*/
  goto LOOP;
+
+
+indirect_sort:       //間接ソートを実行
+ {
+ void **arr, **tp;  char *tmp, *ip;
+ if ((arr = malloc( nel * sizeof(char*) + size)) == NULL) goto malloc_err;
+ tmp = (char*)arr + nel * sizeof(char*);
+ for (ip=base, tp=arr; ip<=R; ip+=size, tp++) *tp=(void*)ip;
+ cmp_org = cmp;
+
+ qsort10a5( arr, nel, sizeof(char*), cmp_indirect );
+
+ MMPRE()
+ tp = arr;
+ /* tp[0] .. tp[n - 1] is now sorted, copy around entries of
+	 the original array.  Knuth vol. 3 (2nd ed.) exercise 5.2-10.  */
+ char *kp;
+ size_t i;
+ for (i = 0, ip = (char *) base; i < nel; i++, ip += size)
+   if ((kp = tp[i]) != ip)
+     {
+       size_t j = i;
+       char *jp = ip;
+       memcpy(tmp, ip, size);
+
+       do
+         {
+           size_t k = (kp - (char *) base) / size;
+           tp[j] = jp;
+           memcpy(jp, kp, size);
+           j = k;
+           jp = kp;
+           kp = tp[k];
+         }
+       while (kp != ip);
+
+       tp[j] = jp;
+       memcpy(jp, tmp, size);
+     }
+ free(arr);
+ }
 }
