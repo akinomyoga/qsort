@@ -1,9 +1,26 @@
+/* Copyright (C) 2017-2018 河村　知行 <t-kawa@crux.ocn.ne.jp>
+   Copyright (C) 2018 yumetodo <yume-wikijp@live.jp>
+   This file is part of t-kawa-qsort.
+   Written by Koichi Murase <myoga.murase@gmail.com>
+
+   t-kawa-qsort is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   t-kawa-qsort is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with t-kawa-qsort.  If not, see <http://www.gnu.org/licenses/>. */
+
 #ifndef QSORT_LIB_STD_SORT_H
 #define QSORT_LIB_STD_SORT_H
 #include <cstddef>
 #include <cstring>
 #include <memory>
-#include <limits>
 #include <algorithm>
 #include <numeric>
 
@@ -15,9 +32,7 @@ typedef int cmp_t(const void *, const void *);
 
 template<typename Unsigned, typename Compare>
 bool qsort_stdsort_impl(void* a, std::size_t n, std::size_t es, Compare compare) {
-  constexpr int digits_per_elem = std::numeric_limits<Unsigned>::digits;
-  constexpr int digits_per_byte = std::numeric_limits<unsigned char>::digits;
-  if (es * digits_per_byte != digits_per_elem) return false;
+  if (es != sizeof(Unsigned)) return false;
 
   Unsigned* const begin = reinterpret_cast<Unsigned*>(a);
   Unsigned* const end = begin + n;
@@ -30,7 +45,6 @@ bool qsort_stdsort_impl(void* a, std::size_t n, std::size_t es, Compare compare)
 template<typename Compare>
 void qsort_stdsort(void* a, std::size_t n, std::size_t es, Compare compare) {
   byte* const base = reinterpret_cast<byte*>(a);
-  constexpr int bits = std::numeric_limits<unsigned char>::digits;
 
   if (qsort_stdsort_impl<std::uint8_t>(a, n, es, compare)) return;
   if (qsort_stdsort_impl<std::uint16_t>(a, n, es, compare)) return;
@@ -41,14 +55,11 @@ void qsort_stdsort(void* a, std::size_t n, std::size_t es, Compare compare) {
   byte** table = (byte**) buffer;
   byte* tmp = (byte*) (buffer + n * sizeof(byte*));
 
-  //auto table = std::make_unique<byte*[]>(n);
-  std::size_t i = 0;
-  std::generate(&table[0], &table[n], [=, &i] () { return base + es * i++; });
+  for (std::size_t i = 0; i < n; i++) table[i] = base + es * i;
   std::sort(&table[0], &table[n], [compare] (byte* lhs, byte* rhs) {
     return compare(lhs, rhs) < 0;
   });
 
-  //auto tmp = std::make_unique<byte[]>(es);
   byte* ip = base;
   for (std::size_t i = 0; i < n; i++, ip += es) {
     byte* kp = table[i];
