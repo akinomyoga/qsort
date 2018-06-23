@@ -25,6 +25,7 @@
 #include "qs9e17.h"
 #include "qs10a6.h"
 #include "qs10a6m.h"
+#include "qs226ms2.h"
 #include "lib/glibc-qsort.h"
 #include "lib/newlib-qsort.h"
 #include "lib/stdsort-qsort.hpp"
@@ -66,6 +67,7 @@ enum class qsort_type {
   qs9e17,
   qs10a6,
   qs10a6m,
+  qs226ms2,
   glibc,
   newlib,
   stdsort,
@@ -80,6 +82,8 @@ qsort_type parse_qsort_type(const char* text) {
     return qsort_type::qs10a6;
   } else if (strcmp(text, "qs10a6m") == 0) {
     return qsort_type::qs10a6m;
+  } else if (strcmp(text, "qs226ms2") == 0) {
+    return qsort_type::qs226ms2;
   } else if (strcmp(text, "glibc") == 0) {
     return qsort_type::glibc;
   } else if (strcmp(text, "newlib") == 0) {
@@ -225,7 +229,7 @@ int main(int argc, char **argv) {
 
     qsortType = parse_qsort_type(argv[iarg++]);
     if (qsortType == qsort_type::invalid)
-      die("Usage: qsort_type = qsort | qs9e17 | qs10a6 | qs10a6m | glibc | newlib | stdsort");
+      die("Usage: qsort_type = qsort | qs9e17 | qs10a6 | qs10a6m | qs226ms2 | glibc | newlib | stdsort");
 
     div_val   = atoi(argv[iarg++]);  /*テストデータの種類を指定する random()%div_val等*/
     arr_max   = atoi(argv[iarg++]);  /*要素の個数(要素数)*/
@@ -279,6 +283,11 @@ int main(int argc, char **argv) {
     measure_qsort(
       [](void* arr, size_t n, size_t sz, cmpfnc_t cmpfnc) {
         qsort10a6m(arr, n, sz, cmpfnc); });
+    break;
+  case qsort_type::qs226ms2:
+    measure_qsort(
+      [](void* arr, size_t n, size_t sz, cmpfnc_t cmpfnc) {
+        qsort226ms2(arr, n, sz, cmpfnc); });
     break;
   case qsort_type::glibc:
     measure_qsort(

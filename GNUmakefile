@@ -5,7 +5,7 @@ all:
 
 optimization_type := L3N
 ifeq ($(optimization_type),L0)
-  optimization_flags := -O0
+  optimization_flags := -O0 -DNDEBUG
 else ifeq ($(optimization_type),L1)
   optimization_flags := -O1 -DNDEBUG
 else ifeq ($(optimization_type),L2)
@@ -51,7 +51,8 @@ measure_OBJS += \
 measure_OBJS += \
   $(BUILD_DIRECTORY)/qs9e17.o \
   $(BUILD_DIRECTORY)/qs10a6.o \
-  $(BUILD_DIRECTORY)/qs10a6m.o
+  $(BUILD_DIRECTORY)/qs10a6m.o \
+  $(BUILD_DIRECTORY)/qs226ms2.o
 
 #------------------------------------------------------------------------------
 # GPL qsorts を組み込む場合
