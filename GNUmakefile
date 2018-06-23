@@ -36,8 +36,8 @@ CPPFLAGS = -MD -MP -MF $(@:.o=.dep)
 
 CC       := gcc
 CXX      := g++
-CFLAGS   := -std=c99   $(optimization_flags) $(use_random_flags) -Wall -Wextra
-CXXFLAGS := -std=c++14 $(optimization_flags) $(use_random_flags) -Wall -Wextra
+CFLAGS   := -std=c99   $(optimization_flags) $(use_random_flags) -Wall -Wextra -Wno-implicit-fallthrough
+CXXFLAGS := -std=c++14 $(optimization_flags) $(use_random_flags) -Wall -Wextra -Wno-implicit-fallthrough
 
 #------------------------------------------------------------------------------
 
@@ -45,14 +45,13 @@ measure_OBJS += \
   $(BUILD_DIRECTORY)/measure.o
 
 measure_OBJS += \
-  $(BUILD_DIRECTORY)/mm88c.o \
   $(BUILD_DIRECTORY)/die.o \
   $(BUILD_DIRECTORY)/global_variable.o
 
 measure_OBJS += \
   $(BUILD_DIRECTORY)/qs9e17.o \
-  $(BUILD_DIRECTORY)/qs10a5.o \
-  $(BUILD_DIRECTORY)/qs10a5m.o
+  $(BUILD_DIRECTORY)/qs10a6.o \
+  $(BUILD_DIRECTORY)/qs10a6m.o
 
 #------------------------------------------------------------------------------
 # GPL qsorts を組み込む場合

@@ -23,8 +23,8 @@
 #include "die.h"
 #include "global_variable.h"
 #include "qs9e17.h"
-#include "qs10a5.h"
-#include "qs10a5m.h"
+#include "qs10a6.h"
+#include "qs10a6m.h"
 #include "lib/glibc-qsort.h"
 #include "lib/newlib-qsort.h"
 #include "lib/stdsort-qsort.hpp"
@@ -38,7 +38,7 @@ std::mt19937 create_random_engine()
 
 typedef struct { int key; int data; } el_t;
 
-unsigned int cmp_cnt, ass_cnt;
+size_t cmp_cnt;
 
 int strcmp0(const char *s1, const char *s2)
 {
@@ -64,8 +64,8 @@ enum class qsort_type {
   invalid,
   qsort,
   qs9e17,
-  qs10a5,
-  qs10a5m,
+  qs10a6,
+  qs10a6m,
   glibc,
   newlib,
   stdsort,
@@ -76,10 +76,10 @@ qsort_type parse_qsort_type(const char* text) {
     return qsort_type::qsort;
   } else if (strcmp(text, "qs9e17") == 0) {
     return qsort_type::qs9e17;
-  } else if (strcmp(text, "qs10a5") == 0) {
-    return qsort_type::qs10a5;
-  } else if (strcmp(text, "qs10a5m") == 0) {
-    return qsort_type::qs10a5m;
+  } else if (strcmp(text, "qs10a6") == 0) {
+    return qsort_type::qs10a6;
+  } else if (strcmp(text, "qs10a6m") == 0) {
+    return qsort_type::qs10a6m;
   } else if (strcmp(text, "glibc") == 0) {
     return qsort_type::glibc;
   } else if (strcmp(text, "newlib") == 0) {
@@ -188,7 +188,10 @@ void do_qsort(int do_qs, F qsort_selected) {
 
 template<typename F>
 void measure_qsort(F qsort_selected) {
-  cmp_cnt = ass_cnt = 0;
+  cmp_cnt = 0;
+#ifdef DEBUG
+  init_ass_cnt();
+#endif
 
   clock_t clk_start, clk_end, clk_end2;
   clk_start = clock();
@@ -198,12 +201,17 @@ void measure_qsort(F qsort_selected) {
   clk_end2 = clock();
 
   {
-    unsigned int cmp_av = cmp_cnt / itarate;
-    unsigned int ass_av = ass_cnt / itarate;
+#ifdef DEBUG
+    size_t const ass_cnt = get_ass_cnt();
+#else
+    size_t const ass_cnt = 0;
+#endif
+    size_t const cmp_av = cmp_cnt / itarate;
+    size_t const ass_av = ass_cnt / itarate;
     double sum_av = (double)cmp_av + ass_av;
     double etime = (double)((clk_end - clk_start) - (clk_end2 - clk_end)) / CLOCKS_PER_SEC;
     fprintf(stderr, "   %4.0f ", etime / itarate * 100000);
-    printf(" c=%-6u %10u a=%-6u %u i=%1.0f T=%1.2f %4.0f \n", cmp_av, cmp_cnt, ass_av, ass_cnt, sum_av, etime, etime / itarate * 100000);
+    printf(" c=%-6zu %10zu a=%-6zu %zu i=%1.0f T=%1.2f %4.0f \n", cmp_av, cmp_cnt, ass_av, ass_cnt, sum_av, etime, etime / itarate * 100000);
   }
 }
 
@@ -217,7 +225,7 @@ int main(int argc, char **argv) {
 
     qsortType = parse_qsort_type(argv[iarg++]);
     if (qsortType == qsort_type::invalid)
-      die("Usage: qsort_type = qsort | qs9e17 | qs10a5 | qs10a5m | glibc | newlib | stdsort");
+      die("Usage: qsort_type = qsort | qs9e17 | qs10a6 | qs10a6m | glibc | newlib | stdsort");
 
     div_val   = atoi(argv[iarg++]);  /*テストデータの種類を指定する random()%div_val等*/
     arr_max   = atoi(argv[iarg++]);  /*要素の個数(要素数)*/
@@ -262,15 +270,15 @@ int main(int argc, char **argv) {
       [](void* arr, size_t n, size_t sz, cmpfnc_t cmpfnc) {
         qsort9e17(arr, n, sz, cmpfnc); });
     break;
-  case qsort_type::qs10a5:
+  case qsort_type::qs10a6:
     measure_qsort(
       [](void* arr, size_t n, size_t sz, cmpfnc_t cmpfnc) {
-        qsort10a5(arr, n, sz, cmpfnc); });
+        qsort10a6(arr, n, sz, cmpfnc); });
     break;
-  case qsort_type::qs10a5m:
+  case qsort_type::qs10a6m:
     measure_qsort(
       [](void* arr, size_t n, size_t sz, cmpfnc_t cmpfnc) {
-        qsort10a5m(arr, n, sz, cmpfnc); });
+        qsort10a6m(arr, n, sz, cmpfnc); });
     break;
   case qsort_type::glibc:
     measure_qsort(

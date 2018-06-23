@@ -3,8 +3,8 @@
 compare_qsorts1 () {
   #"$measure" qsort   "$@"   0   0   0 0
   "$measure" qs9e17  "$@" 140 900   0 0
-  "$measure" qs10a5  "$@" 140 900 400 0
-  "$measure" qs10a5m "$@" 140 900 400 0
+  "$measure" qs10a6  "$@" 140 900 400 0
+  "$measure" qs10a6m "$@" 140 900 400 0
   "$measure" glibc   "$@"   0   0   0 0
   "$measure" newlib  "$@"   0   0   0 0
   "$measure" stdsort "$@"   0   0   0 0
