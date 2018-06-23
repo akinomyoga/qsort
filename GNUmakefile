@@ -96,7 +96,7 @@ measure:
 .PHONY: all
 measure:
 	for opt in L0 L1 L2 L3 L3N; do make optimization_type=$$opt all; done
-	./measure.sh
+	./measure.sh measure2
 
 $(DIRS):
 	mkdir -p $@
