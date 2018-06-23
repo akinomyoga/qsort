@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.3)
 enable_language(CXX)
+set(CMAKE_C_STANDARD 11) # C11...
 set(CMAKE_CXX_STANDARD 14) # C++14...
 set(CMAKE_CXX_STANDARD_REQUIRED ON) #...is required...
 set(CMAKE_CXX_EXTENSIONS OFF) #...without compiler extensions like gnu++11
@@ -17,10 +18,10 @@ set(
     "./main_prog.cpp"
     "./target_data.cpp"
     "./global_variable.c"
-    "./mm88c.c"
-    "./qs10a5.c"
-    "./qs10a5m.c"
+    "./qs10a6.c"
+    "./qs10a6m.c"
     "./qs9e17.c"
+    "./qs226ms2.c"
     "./die.c"
 )
 
@@ -32,7 +33,7 @@ find_package(Threads REQUIRED)
 #
 # Update compiler waring flags
 #
-if(MSVC)
+if(MSVC AND NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
   # Force to always compile with W4
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
     string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")

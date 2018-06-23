@@ -6,10 +6,10 @@
 =============================================================================*/
 #include <stdio.h>
 #include <stdlib.h>
-#include "mm88.h"
 #include "qs9e17.h"
-#include "qs10a5.h"
-#include "qs10a5m.h"
+#include "qs10a6.h"
+#include "qs10a6m.h"
+#include "qs226ms2.h"
 #include "global_variable.h"
 #include "target_data.hpp"
 #include "time_logger.hpp"
@@ -65,15 +65,18 @@ int main(int argc, char **argv) {
 		{
 		case 4:
 			g_QS_MID3 = std::stoi(argv[7]);//size がこれ以上=のときに間接ソートを追加 qs10の既定値400
+			/* fall through */
 		case 3:
 			g_QS_MID2 = std::stoi(argv[6]);//n がこれ以下で９点処理を行う qs9の既定値900
+			/* fall through */
 		case 2:
 			g_QS_MID1 = std::stoi(argv[5]);//n がこれ以下で３点処理を行う qs9の既定値140
+			/* fall through */
 		default:
 			break;
 		}
-		const char* const qsort_func_name[] = { "qsort", "qs9e17", "qs10a5", "qs10a5m" };
-		const qsort_func_t qsort_f[] = { qsort, qsort9e17, qsort10a5, qsort10a5m };
+		const char* const qsort_func_name[] = { "qsort", "qs9e17", "qs10a6", "qs10a6m", "qs226ms2" };
+		const qsort_func_t qsort_f[] = { qsort, qsort9e17, qsort10a6, qsort10a6m, qsort226ms2 };
 		static_assert(std_future::size(qsort_func_name) == std_future::size(qsort_f), "err");
 		for (int div_val : { -3, 100, 2 }) for (size_t arr_max : { 10000u }) for (size_t rec_siz : { 8u, 20u, 24u, 500u, 1000u }) {
 			const size_t iterate = decide_itarate(div_val, rec_siz, 10);
