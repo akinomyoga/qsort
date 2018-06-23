@@ -7,13 +7,13 @@ optimization_type := L3N
 ifeq ($(optimization_type),L0)
   optimization_flags := -O0
 else ifeq ($(optimization_type),L1)
-  optimization_flags := -O1
+  optimization_flags := -O1 -DNDEBUG
 else ifeq ($(optimization_type),L2)
-  optimization_flags := -O2
+  optimization_flags := -O2 -DNDEBUG
 else ifeq ($(optimization_type),L3)
-  optimization_flags := -O3
+  optimization_flags := -O3 -DNDEBUG
 else ifeq ($(optimization_type),L3N)
-  optimization_flags := -O3 -march=native
+  optimization_flags := -O3 -march=native -DNDEBUG
 endif
 
 use_random := mt19937
@@ -36,8 +36,8 @@ CPPFLAGS = -MD -MP -MF $(@:.o=.dep)
 
 CC       := gcc
 CXX      := g++
-CFLAGS   := -std=c99   $(optimization_flags)
-CXXFLAGS := -std=c++14 $(optimization_flags)
+CFLAGS   := -std=c99   $(optimization_flags) $(use_random_flags) -Wall -Wextra
+CXXFLAGS := -std=c++14 $(optimization_flags) $(use_random_flags) -Wall -Wextra
 
 #------------------------------------------------------------------------------
 
@@ -66,14 +66,14 @@ measure_OBJS += \
 
 #------------------------------------------------------------------------------
 
-.SECONDARY:
+.INTERMEDIATE:
 
 $(BUILD_DIRECTORY)/%.o: %.cpp | $(BUILD_DIRECTORY)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(use_random_flags) -c -o $@ $<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 $(BUILD_DIRECTORY)/%.o: %.c | $(BUILD_DIRECTORY)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(use_random_flags) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 $(BUILD_DIRECTORY)/%.o: lib/%.c | $(BUILD_DIRECTORY)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(use_random_flags) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIRECTORY)/measure.exe: $(measure_OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
